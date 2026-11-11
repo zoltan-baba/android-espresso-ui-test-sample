@@ -1,0 +1,29 @@
+format_version: '13'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: android
+workflows:
+  instrumented_tests:
+    summary: Builds a debug APK and a test APK, runs the instrumented tests on an emulator, and deploys the results.
+    description: 'Docs test workflow: checks what the Android Instrumented Test Step sends to Test reports.'
+    meta:
+      bitrise.io:
+        stack: ubuntu-noble-24.04-bitrise-2025-android
+        machine_type_id: g2.linux.x-large
+    steps:
+    - git-clone@8: {}
+    - install-missing-android-tools@3:
+        inputs:
+        - gradlew_path: "./gradlew"
+    - android-build-for-ui-testing@1:
+        inputs:
+        - project_location: "."
+        - module: app
+        - variant: debug
+    - avd-manager@2:
+        inputs:
+        - api_level: '34'
+        - tag: google_apis
+        - abi: x86_64
+    - android-instrumented-test@0: {}
+    - deploy-to-bitrise-io@2:
+        is_always_run: true
